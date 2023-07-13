@@ -36,45 +36,69 @@ struct ContentView: View {
          let amountPerPerson = grandTotal / peopleCount
          return amountPerPerson
      }
+    
+    var totalCheckAmount: Double {
+        let tipSelection = Double(tipPercentage)
+        let tipValue = checkAmount / 100 * tipSelection
+        let grandTotal = checkAmount + tipValue
+        let totalAmount = grandTotal
+        return totalAmount
+    }
      
-     let tipPercentages = [10, 15, 20, 25, 0]
      var body: some View {
-         
-         Form {
-             Section {
-                 // Updated code with currency.identifier
-                 TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                     .keyboardType(.decimalPad)
-                     .accessibilityLabel(/*@START_MENU_TOKEN@*/"Label"/*@END_MENU_TOKEN@*/)
-                 Picker("Number of people", selection: $numberOfPeople){
-                     ForEach(2..<100, id: \.self) {
-                         Text("\($0) people")
+         NavigationStack {
+             Form {
+                 Section {
+                     // Updated code with currency.identifier
+                     TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                         .keyboardType(.decimalPad)
+                         .accessibilityLabel("Label")
+                         .focused($amountIsFocused)
+                     
+                     Picker("Number of people", selection: $numberOfPeople){
+                         ForEach(2..<100, id: \.self) {
+                             Text("\($0) people")
+                         }
                      }
                  }
-             }
-             Section {
-                 Picker("Tip percentage", selection: $tipPercentage) {
-                     ForEach(tipPercentages, id: \.self) {
-                         Text($0, format: .percent)
-                     }
-                 }.pickerStyle(.segmented)
-             } header: {
-                 Text("How much tips do you want to leave?")
-             }
-             
-             Section {
-                 Text(totalPerPerson, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-             }
-             
-         }.navigationTitle("WeSplit")
-             .toolbar {
-                 ToolbarItemGroup(placement: .keyboard) {
-                     Spacer()
-                     Button("Done") {
-                         amountIsFocused = false
+                 Section {
+                     Picker("Tip percentage", selection: $tipPercentage) {
+                         ForEach(0..<101, id: \.self) {
+                             Text($0, format: .percent)
+                         }
+                     }.pickerStyle(.navigationLink)
+                 } header: {
+                     Text("How much tips do you want to leave?")
+                 }
+                 
+                 Section {
+                     Text(totalPerPerson, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                 } header: {
+                     HStack {
+                         Image(systemName: "person.fill")
+                         Text("Amount per person")
                      }
                  }
-             }
+                 
+                 Section {
+                     Text(totalCheckAmount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                 } header: {
+                     HStack {
+                         Image(systemName: "person.2.fill")
+                         Text("Total amount for the check")
+                     }
+                 }
+                 
+             }.navigationTitle("WeSplit")
+                 .toolbar {
+                     ToolbarItemGroup(placement: .keyboard) {
+                         Spacer()
+                         Button("Done") {
+                             amountIsFocused = false
+                         }
+                     }
+                 }
+         }
      }
 }
 
