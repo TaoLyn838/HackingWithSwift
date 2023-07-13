@@ -14,19 +14,43 @@ struct ContentView: View {
     @State private var showingScore = false
     @State private var scoreTitle = ""
     @State private var playerScore = 0
+    @State private var QuestionNumberID = 1
+    @State private var restartGame = false
     
     func flagTapped(num: Int) {
-        if num == correctAnswer {
-            scoreTitle = "Correct"
-            playerScore += 1
+        if QuestionNumberID < 8 {
+            
+            if num == correctAnswer {
+                scoreTitle = "Correct"
+                playerScore += 1
+            } else {
+                scoreTitle = "Wrong! That's the flag of \(countries[num])"
+            }
+            QuestionNumberID += 1
+            
         } else {
-            scoreTitle = "Wrong"
+            
+            if num == correctAnswer {
+                playerScore += 1
+            }
+            scoreTitle = "🎉 Congratulations!"
+            restartGame = true
         }
+        
         showingScore.toggle()
     }
+    
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+    }
+    
+    func gameRestart() {
+        playerScore = 0
+        QuestionNumberID = 1
+        restartGame.toggle()
+        askQuestion()
+        
     }
         
     var body: some View {
@@ -73,9 +97,9 @@ struct ContentView: View {
             }.padding()
         }
         .alert(scoreTitle, isPresented: $showingScore) {
-            Button("Continue", action: askQuestion)
+            Button(restartGame ? "Start New Game!" : "Continue", action: restartGame ? gameRestart : askQuestion)
         } message: {
-            Text("Your score is \(playerScore)")
+            Text(restartGame ? "Your total score is \(playerScore) in \(QuestionNumberID) turns!" : "Your score is \(playerScore)")
         }
     }
 }
