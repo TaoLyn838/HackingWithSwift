@@ -190,6 +190,7 @@ struct ValidatingWordsWithUITextChecker: View {
     @State private var usedWords = [String] ()
     @State private var rootWord = ""
     @State private var newWord = ""
+    @State private var userScore = 0
     
     // handle alert
     @State private var errorTitle = ""
@@ -201,6 +202,7 @@ struct ValidatingWordsWithUITextChecker: View {
             if let startWord = try? String(contentsOf: startWordURL) {
                 let allWords = startWord.components(separatedBy: "\n")
                 rootWord = allWords.randomElement() ?? "silKworm"
+                userScore = 0
                 return
             }
         }
@@ -210,7 +212,10 @@ struct ValidatingWordsWithUITextChecker: View {
     func addNewWord() {
         let answer = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        guard answer.count > 0 else { return }
+        guard answer.count > 2 else {
+            wordError(title: "letter limit", message: "you can not enter words that shorter than 3 letters")
+            return
+        }
         
         guard isOriginal(word: answer) else {
             wordError(title: "Word used already", message: "Be more original")
@@ -223,9 +228,11 @@ struct ValidatingWordsWithUITextChecker: View {
         }
         
         guard isReal(word: answer) else {
-            wordError(title: "Word not recongnized", message: "You can not just make them up, you know!")
+            wordError(title: "Word not recognized", message: "You can not just make them up, you know!")
             return
         }
+        
+        userScore += 1
         
         withAnimation {
             usedWords.insert(answer, at: 0)
@@ -263,7 +270,7 @@ struct ValidatingWordsWithUITextChecker: View {
         errorMessage = message
         showingError = true
     }
-    
+        
     var body: some View {
         NavigationView {
             List {
@@ -271,6 +278,17 @@ struct ValidatingWordsWithUITextChecker: View {
                     TextField("Enter your word", text: $newWord)
                         .textInputAutocapitalization(.none)
                 }
+                
+                Section {
+                    HStack {
+                        Spacer()
+                        Text("Your score is \(userScore)")
+                            .labelsHidden()
+                            .font(.body.bold())
+                        Spacer()
+                    }
+                }
+                
                 Section {
                     ForEach (usedWords, id: \.self) { word in
                         HStack {
@@ -283,6 +301,9 @@ struct ValidatingWordsWithUITextChecker: View {
             .navigationTitle(rootWord)
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
+            .toolbar {
+                Button("Start New Game", action: startGame)
+            }
             .alert(errorTitle, isPresented: $showingError) {
                 Button("Ok", role: .cancel) {}
             } message: {

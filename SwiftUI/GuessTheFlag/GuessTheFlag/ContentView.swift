@@ -17,6 +17,19 @@ struct ContentView: View {
     @State private var QuestionNumberID = 1
     @State private var restartGame = false
     
+    @ViewBuilder var FlagImage: some View {
+        ForEach(0..<3, id: \.self) {number in
+            Button {
+                flagTapped(num: number)
+            } label: {
+                Image(countries[number])
+                    .renderingMode(.original)
+                    .clipShape(Capsule())
+                    .shadow(color: .black, radius: 5)
+            }
+        }
+    }
+    
     func flagTapped(num: Int) {
         if QuestionNumberID < 8 {
             
@@ -61,26 +74,17 @@ struct ContentView: View {
             VStack {
                 Spacer()
                 Text("Guess the Flag")
-                    .font(.largeTitle.weight(.bold))
-                    .foregroundColor(.white)
+                    .titleModifier()
                 
                 VStack (spacing: 15) {
                     VStack {
                         Text("Tap the flag of")
                             .font(.subheadline.weight(.heavy))
                             .foregroundStyle(.secondary)
-                        Text(countries[correctAnswer]).font(.largeTitle.weight(.semibold))
+                        Text(countries[correctAnswer])
+                            .titleModifier()
                     }
-                    ForEach(0..<3, id: \.self) {number in
-                        Button {
-                            flagTapped(num: number)
-                        } label: {
-                            Image(countries[number])
-                                .renderingMode(.original)
-                                .clipShape(Capsule())
-                                .shadow(color: .black, radius: 5)
-                        }
-                    }
+                    FlagImage
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
@@ -91,8 +95,7 @@ struct ContentView: View {
                 Spacer()
                 
                 Text("Score: \(playerScore)")
-                    .foregroundColor(.white)
-                    .font(.title.bold())
+                    .titleModifier()
                 Spacer()
             }.padding()
         }
@@ -103,6 +106,7 @@ struct ContentView: View {
         }
     }
 }
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
